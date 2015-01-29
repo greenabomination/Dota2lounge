@@ -56,7 +56,7 @@ public class NewThread extends AsyncTask<String, Void, String> {
         String _matchstatus;
         String _matchwinner;
         long time = System.currentTimeMillis();
-    Log.d(LOG_TAG,"current time: "+time);
+        Log.d(LOG_TAG, "current time: " + time);
         try {
             doc = Jsoup.connect("http://dota2lounge.com/").timeout(15 * 1000)
                     .get();
@@ -89,7 +89,7 @@ public class NewThread extends AsyncTask<String, Void, String> {
 
                 }
                 /*
-				 * if (q==4){ Log.d(LOG_TAG, i.html()); Log.d(LOG_TAG,
+                 * if (q==4){ Log.d(LOG_TAG, i.html()); Log.d(LOG_TAG,
 				 * _matchstatus); Log.d(LOG_TAG,
 				 * ""+i.select("div.team").first().children().size());} q++;
 				 */
@@ -125,6 +125,7 @@ public class NewThread extends AsyncTask<String, Void, String> {
                 cv.put("link", _link);
                 cv.put("matchstatus", _matchstatus);
                 cv.put("matchwinner", _matchwinner);
+                cv.put("timeupdate", time);
 
                 // вставляем запись и получаем ее ID
                 long rowID = db.insert("matches", null, cv);
@@ -138,12 +139,19 @@ public class NewThread extends AsyncTask<String, Void, String> {
                 int idColIndex = c.getColumnIndex("id");
                 int teamColIndex = c.getColumnIndex("team");
                 int againstColIndex = c.getColumnIndex("against");
+                int matchstatusColIndex = c.getColumnIndex("matchstatus");
+                int matchtimeColIndex = c.getColumnIndex("matchtime");
+                int timerecordColIndex = c.getColumnIndex("timeupdate");
                 do {
                     // получаем значения по номерам столбцов и пишем все в лог
                     Log.d(LOG_TAG,
                             "ID = " + c.getInt(idColIndex) + ", ::: "
                                     + c.getString(teamColIndex) + ", VS  "
-                                    + c.getString(againstColIndex));
+                                    + c.getString(againstColIndex) + " ("
+                                    + c.getString(matchstatusColIndex) + ") "
+                                    + c.getString(matchtimeColIndex) + " ---"
+                                    + c.getString(timerecordColIndex)
+                    );
                     // переход на следующую строку
                     // а если следующей нет (текущая - последняя), то false -
                     // выходим из цикла
@@ -156,6 +164,8 @@ public class NewThread extends AsyncTask<String, Void, String> {
             clearCount = db.delete("matches", null, null);
             Log.d(LOG_TAG, "deleted rows count = " + clearCount);
             db.close();
+            time = System.currentTimeMillis();
+            Log.d(LOG_TAG, time + "");
         } catch (IOException e) {
             e.printStackTrace();
         }
