@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="Bckgr">#9C9C9C</color>
-    <color name="Red">#FFAA5500</color>
-    <color name="Orange">#FFFFFF00</color>
-    <color name="Green">#FF00AA55</color>
+    <color name="Red">#ffaa112e</color>
+    <color name="Orange">#ffffff00</color>
+    <color name="Green">#ff1daa1d</color>
     <color name="Black">#000000</color>
+    <color name="Blue">#ff1d18e2</color>
 </resources>

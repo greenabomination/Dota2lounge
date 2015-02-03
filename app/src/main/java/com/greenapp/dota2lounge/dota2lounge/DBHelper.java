@@ -24,6 +24,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "against text,"
                 + "teampersent text,"
                 + "againstpersent text,"
+                + "teampic text,"
+                + "againstpic text,"
                 + "link text,"
                 + "matchstatus text,"
                 + "matchwinner text,"

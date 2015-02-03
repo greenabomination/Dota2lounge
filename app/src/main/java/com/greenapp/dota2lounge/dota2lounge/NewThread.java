@@ -42,7 +42,7 @@ public class NewThread extends AsyncTask<String, Void, String> {
         Log.d(LOG_TAG, dbHelper.getDatabaseName());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Log.d(LOG_TAG, "get db");
-        int clearCount = db.delete("matches", null, null);
+        //  int clearCount = db.delete("matches", null, null);
         Log.d(LOG_TAG, "START");
         Document doc;
         Elements htmltext;
@@ -55,7 +55,26 @@ public class NewThread extends AsyncTask<String, Void, String> {
         String _link;
         String _matchstatus;
         String _matchwinner;
+        String _teampic;
+        String _againstpic;
+        //Для базы данных
+        String[] columns = null;
+        String selection = null;
+        String[] selectionArgs = null;
+        String groupBy = null;
+        String having = null;
+        String orderBy = null;
+
         long time = System.currentTimeMillis();
+        long deletetime = time - 900000;//пятнадцатиминутная давность
+
+        selection = "timeupdate <= ?";
+        selectionArgs = new String[]{""+deletetime};
+Log.d(LOG_TAG,"pre_delete");
+int deleterecord = db.delete("matches", selection, selectionArgs);
+Log.d(LOG_TAG,"deleted "+deleterecord+" rows");
+
+
         Log.d(LOG_TAG, "current time: " + time);
         try {
             doc = Jsoup.connect("http://dota2lounge.com/").timeout(15 * 1000)
@@ -88,48 +107,46 @@ public class NewThread extends AsyncTask<String, Void, String> {
                     }
 
                 }
-                /*
-                 * if (q==4){ Log.d(LOG_TAG, i.html()); Log.d(LOG_TAG,
-				 * _matchstatus); Log.d(LOG_TAG,
-				 * ""+i.select("div.team").first().children().size());} q++;
-				 */
-
-				/*
-				 * doc_detail=Jsoup.connect(_link).get();
-				 * html_detail=doc_detail.select("div.gradient > div.half");
-				 * _matchtime=html_detail.get(0).html();
-				 * _matchtype=html_detail.get(1).html();
-				 * _matchcesttime=html_detail.get(2).html();
-				 *
-				 * _matchtime=_matchtime+", "+_matchcesttime;
-				 */
-
-                matches m = new matches(_matchtime, _matchtournament, _team,
-                        _against, _teampersent, _againstpersent, i
+                _teampic = i
                         .select("div.team").first().attr("style")
                         .replace("float: right; background: url('", "")
-                        .replace("')", "").replace("\\", ""), i
+                        .replace("')", "").replace("\\", "");
+                _againstpic = i
                         .select("div.team").last().attr("style")
                         .replace("float: left; background: url('", "")
-                        .replace("')", "").replace("\\", ""), null,
-                        _matchstatus, _matchwinner, _link);
+                        .replace("')", "").replace("\\", "");
+                //заканчиваем парсинг и сохраняем полученный матч
 
-                activity.mat.add(m);
 
-                cv.put("matchtime", _matchtime);
-                cv.put("matchtournament", _matchtournament);
-                cv.put("team", _team);
-                cv.put("against", _against);
-                cv.put("teampersent", _teampersent);
-                cv.put("againstpersent", _againstpersent);
-                cv.put("link", _link);
-                cv.put("matchstatus", _matchstatus);
-                cv.put("matchwinner", _matchwinner);
-                cv.put("timeupdate", time);
+                selection = "link = ?";
+                selectionArgs = new String[]{_link};
 
-                // вставляем запись и получаем ее ID
-                long rowID = db.insert("matches", null, cv);
-                Log.d(LOG_TAG, "row inserted, ID = " + rowID);
+
+                Cursor q = db.query("matches", null, selection, selectionArgs, null, null, null);
+
+                Log.d(LOG_TAG, "" + q.getCount());
+
+                if (0 == q.getCount()) {
+
+                    cv.put("matchtime", _matchtime);
+                    cv.put("matchtournament", _matchtournament);
+                    cv.put("team", _team);
+                    cv.put("against", _against);
+                    cv.put("teampersent", _teampersent);
+                    cv.put("againstpersent", _againstpersent);
+                    cv.put("teampic", _teampic);
+                    cv.put("againstpic", _againstpic);
+                    cv.put("link", _link);
+                    cv.put("matchstatus", _matchstatus);
+                    cv.put("matchwinner", _matchwinner);
+                    cv.put("timeupdate", time);
+
+                    // вставляем запись и получаем ее ID
+                    long rowID = db.insert("matches", null, cv);
+                    Log.d(LOG_TAG, "row inserted, ID = " + rowID);
+                } else { //иначе пропускаем
+                    Log.d(LOG_TAG, "Link " + _link + " already exist...skip");
+                }
             }
 
             Log.d(LOG_TAG, "FINISH");
@@ -152,6 +169,12 @@ public class NewThread extends AsyncTask<String, Void, String> {
                                     + c.getString(matchtimeColIndex) + " ---"
                                     + c.getString(timerecordColIndex)
                     );
+                    //получаем из базы, создаем объект матч и добавляем в коллекцию матчей
+                    matches m = new matches(c.getString(c.getColumnIndex("matchtime")), c.getString(c.getColumnIndex("matchtournament")), c.getString(c.getColumnIndex("team")),
+                            c.getString(c.getColumnIndex("against")), c.getString(c.getColumnIndex("teampersent")), c.getString(c.getColumnIndex("againstpersent")), c.getString(c.getColumnIndex("teampic")), c.getString(c.getColumnIndex("againstpic")), null,
+                            c.getString(c.getColumnIndex("matchstatus")), c.getString(c.getColumnIndex("matchwinner")), c.getString(c.getColumnIndex("link")));
+
+                    activity.mat.add(m);
                     // переход на следующую строку
                     // а если следующей нет (текущая - последняя), то false -
                     // выходим из цикла
@@ -161,8 +184,8 @@ public class NewThread extends AsyncTask<String, Void, String> {
             c.close();
 
             // удаляем все записи
-            clearCount = db.delete("matches", null, null);
-            Log.d(LOG_TAG, "deleted rows count = " + clearCount);
+            //     clearCount = db.delete("matches", null, null);
+            //      Log.d(LOG_TAG, "deleted rows count = " + clearCount);
             db.close();
             time = System.currentTimeMillis();
             Log.d(LOG_TAG, time + "");

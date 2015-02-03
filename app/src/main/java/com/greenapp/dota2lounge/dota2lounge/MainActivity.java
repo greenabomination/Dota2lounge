@@ -1,11 +1,7 @@
 package com.greenapp.dota2lounge.dota2lounge;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,13 +14,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends Activity {
     // наш список матчей
@@ -57,7 +48,6 @@ public class MainActivity extends Activity {
         ra.start();
 
 
-
         // логируем
         Log.d(LOG_TAG, "Run");
         // получаем список
@@ -66,13 +56,16 @@ public class MainActivity extends Activity {
         adapter = new MyAdapter(this, mat);
         // запускаем новый поток в котором делаем наш запрос
         mt = (NewThread) getLastNonConfigurationInstance();
-        if (mt == null) {      mt = new NewThread();      mt.execute();    }
+        if (mt == null) {
+            mt = new NewThread();
+            mt.execute();
+        }
         mt.link(this);
         // назначаем на наш список обработчик долгого клика
         lv.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-            // в котором переходим на другую активити, где я планирую показывать
-            // детали матча
+            // в котором переходим на другую активити,
+            // где я планирую показывать детали матча
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
                                            int position, long id) {
@@ -118,7 +111,7 @@ public class MainActivity extends Activity {
     // другую библиотеку написанную людьми, понимающими чуть-чуть больше чем я
 
 	/*
-	 * public Bitmap getBitmapfromurl (String urlstring) throws IOException {
+     * public Bitmap getBitmapfromurl (String urlstring) throws IOException {
 	 * Bitmap pic; URL url = new URL(urlstring); URLConnection conn =
 	 * url.openConnection(); pic =
 	 * BitmapFactory.decodeStream(conn.getInputStream()); return pic; }
